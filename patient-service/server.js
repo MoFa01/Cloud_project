@@ -1,14 +1,13 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const config = require('../config/config').patientService;
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const app = express();
-const PORT = process.env.PORT || config.port;
+const PORT = process.env.PORT || 3001;
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URL || config.mongoUri, {
+mongoose.connect(process.env.MONGODB_URL || "mongodb+srv://fahd:fahd@cluster0.rc599zk.mongodb.net/healthcare-patients-dev", {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
@@ -16,7 +15,7 @@ mongoose.connect(process.env.MONGODB_URL || config.mongoUri, {
 .catch(err => console.error('Database connection error:', err));
 
 // Middleware
-app.use(cors(config.corsOptions));
+app.use(cors()); // Allow requests from any origin
 app.use(express.json());
 
 // Add environment info to response headers

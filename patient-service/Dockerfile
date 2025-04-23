@@ -1,13 +1,20 @@
-FROM node:16-alpine
+# Use Node.js LTS version
+FROM node:18-alpine
 
-WORKDIR /app
+# Create app directory
+WORKDIR /usr/src/app
 
+# Copy package files
 COPY package*.json ./
 
-RUN npm install
+# Install dependencies
+RUN npm ci --only=production
 
+# Copy app source
 COPY . .
 
+# Expose port
 EXPOSE 3001
 
+# Start the service
 CMD ["npm", "start"]
