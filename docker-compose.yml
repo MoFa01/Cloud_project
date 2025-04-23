@@ -1,0 +1,129 @@
+version: '3.8'
+
+services:
+  # Development Environment
+  patient-service-dev:
+    build:
+      context: ./patient-service
+      dockerfile: Dockerfile
+    container_name: patient-service-dev
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - MONGODB_URL=${MONGODB_CLOUD_URL_DEV}
+      - JWT_SECRET=dev-secret-key
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./patient-service:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - healthcare-dev
+    restart: unless-stopped
+    command: npm run start:dev
+
+
+  # Staging Environment
+  patient-service-staging:
+    build:
+      context: ./patient-service
+      dockerfile: Dockerfile
+    container_name: patient-service-staging
+    environment:
+      - NODE_ENV=staging
+      - PORT=4001
+      - MONGODB_URL=${MONGODB_CLOUD_URL_STAGING}
+      - JWT_SECRET=staging-secret-key
+    ports:
+      - "4001:4001"
+    networks:
+      - healthcare-staging
+    restart: unless-stopped
+    command: npm run start:staging
+
+  # Production Environment
+  patient-service-prod:
+    build:
+      context: ./patient-service
+      dockerfile: Dockerfile
+    container_name: patient-service-prod
+    environment:
+      - NODE_ENV=production
+      - PORT=4002
+      - MONGODB_URL=${MONGODB_CLOUD_URL_PROD}
+      - JWT_SECRET=${PROD_JWT_SECRET}
+    ports:
+      - "4002:4002"
+    networks:
+      - healthcare-prod
+    restart: unless-stopped
+    command: npm run start:prod
+
+  # Health Records Service - Development
+  health-records-service-dev:
+    build:
+      context: ./health-records-service
+      dockerfile: Dockerfile
+    container_name: health-records-service-dev
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - MONGODB_URL=${MONGODB_CLOUD_URL_DEV}
+      - JWT_SECRET=dev-secret-key
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./health-records-service:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - healthcare-dev
+    restart: unless-stopped
+    command: npm run start:dev
+
+
+  # Health Records Service - Staging
+  health-records-service-staging:
+    build:
+      context: ./health-records-service
+      dockerfile: Dockerfile
+    container_name: health-records-service-staging
+    environment:
+      - NODE_ENV=staging
+      - PORT=3003
+      - MONGODB_URL=${MONGODB_CLOUD_URL_STAGING}
+      - JWT_SECRET=staging-secret-key
+    ports:
+      - "3003:3003"
+    networks:
+      - healthcare-staging
+    restart: unless-stopped
+    command: npm run start:staging
+
+  # Health Records Service - Production
+  health-records-service-prod:
+    build:
+      context: ./health-records-service
+      dockerfile: Dockerfile
+    container_name: health-records-service-prod
+    environment:
+      - NODE_ENV=production
+      - PORT=3004
+      - MONGODB_URL=${MONGODB_CLOUD_URL_PROD}
+      - JWT_SECRET=${PROD_JWT_SECRET}
+    ports:
+      - "3004:3004"
+    networks:
+      - healthcare-prod
+    restart: unless-stopped
+    command: npm run start:prod
+
+networks:
+  healthcare-dev:
+    driver: bridge
+  healthcare-staging:
+    driver: bridge
+  healthcare-prod:
+    driver: bridge
+
+
+
