@@ -22,44 +22,6 @@ services:
     restart: unless-stopped
     command: npm run start:dev
 
-
-  # Staging Environment
-  patient-service-staging:
-    build:
-      context: ./patient-service
-      dockerfile: Dockerfile
-    container_name: patient-service-staging
-    environment:
-      - NODE_ENV=staging
-      - PORT=4001
-      - MONGODB_URL=${MONGODB_CLOUD_URL_STAGING}
-      - JWT_SECRET=staging-secret-key
-    ports:
-      - "4001:4001"
-    networks:
-      - healthcare-staging
-    restart: unless-stopped
-    command: npm run start:staging
-
-  # Production Environment
-  patient-service-prod:
-    build:
-      context: ./patient-service
-      dockerfile: Dockerfile
-    container_name: patient-service-prod
-    environment:
-      - NODE_ENV=production
-      - PORT=4002
-      - MONGODB_URL=${MONGODB_CLOUD_URL_PROD}
-      - JWT_SECRET=${PROD_JWT_SECRET}
-    ports:
-      - "4002:4002"
-    networks:
-      - healthcare-prod
-    restart: unless-stopped
-    command: npm run start:prod
-
-  # Health Records Service - Development
   health-records-service-dev:
     build:
       context: ./health-records-service
@@ -80,8 +42,47 @@ services:
     restart: unless-stopped
     command: npm run start:dev
 
+  frontend-dev:
+    build:
+      context: ./HealthCareApp-main
+      dockerfile: Dockerfile
+    container_name: frontend-dev
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_PATIENT_SERVICE_URL=http://patient-service-dev:3001
+      - NEXT_PUBLIC_HEALTH_RECORDS_URL=http://health-records-service-dev:3002
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./HealthCareApp-main:/usr/src/app
+      - /usr/src/app/node_modules
+      - /usr/src/app/.next
+    networks:
+      - healthcare-dev
+    depends_on:
+      - patient-service-dev
+      - health-records-service-dev
+    restart: unless-stopped
+    command: npm run dev
 
-  # Health Records Service - Staging
+  # Staging Environment
+  patient-service-staging:
+    build:
+      context: ./patient-service
+      dockerfile: Dockerfile
+    container_name: patient-service-staging
+    environment:
+      - NODE_ENV=staging
+      - PORT=4001
+      - MONGODB_URL=${MONGODB_CLOUD_URL_STAGING}
+      - JWT_SECRET=staging-secret-key
+    ports:
+      - "4001:4001"
+    networks:
+      - healthcare-staging
+    restart: unless-stopped
+    command: npm run start:staging
+
   health-records-service-staging:
     build:
       context: ./health-records-service
@@ -99,7 +100,43 @@ services:
     restart: unless-stopped
     command: npm run start:staging
 
-  # Health Records Service - Production
+  frontend-staging:
+    build:
+      context: ./HealthCareApp-main
+      dockerfile: Dockerfile
+    container_name: frontend-staging
+    environment:
+      - NODE_ENV=staging
+      - NEXT_PUBLIC_PATIENT_SERVICE_URL=http://patient-service-staging:4001
+      - NEXT_PUBLIC_HEALTH_RECORDS_URL=http://health-records-service-staging:3003
+    ports:
+      - "4000:3000"
+    networks:
+      - healthcare-staging
+    depends_on:
+      - patient-service-staging
+      - health-records-service-staging
+    restart: unless-stopped
+    command: npm run start
+
+  # Production Environment
+  patient-service-prod:
+    build:
+      context: ./patient-service
+      dockerfile: Dockerfile
+    container_name: patient-service-prod
+    environment:
+      - NODE_ENV=production
+      - PORT=4002
+      - MONGODB_URL=${MONGODB_CLOUD_URL_PROD}
+      - JWT_SECRET=${PROD_JWT_SECRET}
+    ports:
+      - "4002:4002"
+    networks:
+      - healthcare-prod
+    restart: unless-stopped
+    command: npm run start:prod
+
   health-records-service-prod:
     build:
       context: ./health-records-service
@@ -116,6 +153,25 @@ services:
       - healthcare-prod
     restart: unless-stopped
     command: npm run start:prod
+
+  frontend-prod:
+    build:
+      context: ./HealthCareApp-main
+      dockerfile: Dockerfile
+    container_name: frontend-prod
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_PATIENT_SERVICE_URL=http://patient-service-prod:4002
+      - NEXT_PUBLIC_HEALTH_RECORDS_URL=http://health-records-service-prod:3004
+    ports:
+      - "5000:3000"
+    networks:
+      - healthcare-prod
+    depends_on:
+      - patient-service-prod
+      - health-records-service-prod
+    restart: unless-stopped
+    command: npm run start
 
 networks:
   healthcare-dev:

@@ -1,13 +1,23 @@
-# Example Dockerfile
-FROM node:18
+# Use Node.js LTS version
+FROM node:18-alpine
 
-WORKDIR /app
+# Create app directory
+WORKDIR /usr/src/app
 
-COPY . .
+# Copy package files
+COPY package*.json ./
 
-ARG NODE_ENV
-ENV NODE_ENV=$NODE_ENV
-
+# Install dependencies
 RUN npm install
 
-CMD ["npm", "run", "start"]
+# Copy app source
+COPY . .
+
+# Build the Next.js application
+RUN npm run build
+
+# Expose port (Next.js default port)
+EXPOSE 3000
+
+# Start the service
+CMD ["npm", "start"]
